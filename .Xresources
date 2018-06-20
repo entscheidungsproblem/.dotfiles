@@ -1,0 +1,16 @@
+Xft.dpi:                    96
+Xft.antialias: true
+
+
+URxvt*scrollBar_left: false
+URxvt*scrollBar: false
+
+URxvt*font: xft:Monospace:pixelsize=12
+URxvt*boldFont: xft:Monospace:bold:pixelsize=12
+
+URxvt.perl-ext-common: default,font-size
+
+launcher*boldFont: xft:Monospace:bold:pixelsize=16
+launcher*font: xft:Monospace:pixelsize=16
+launcher*geometry: 50x3
+launcher*italicFont: xft:Monospace:pixelsize=16
