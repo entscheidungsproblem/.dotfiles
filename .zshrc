@@ -1,55 +1,58 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+if [[ ! -d ~/.zplug ]]; then
+  git clone https://github.com/zplug/zplug ~/.zplug
+  source ~/.zplug/init.zsh && zplug update --self
+fi
 
-# Path to your oh-my-zsh installation.
-export ZSH=/home/mainuser/.oh-my-zsh
+source ~/.zplug/init.zsh
+
+zplug "plugins/gitfast",   from:oh-my-zsh
+zplug "plugins/sudo",   from:oh-my-zsh
+
+zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
+
+#zplug "trapd00r/zsh-syntax-highlighting-filetypes"
+zplug "sparsick/ansible-zsh"
+zplug "spwhitt/nix-zsh-completions"
+zplug "djui/alias-tips"
+zplug "denolfe/zsh-travis"
+
+zplug "zsh-users/zsh-autosuggestions"
+zplug "zsh-users/zsh-syntax-highlighting"
+zplug "zsh-users/zsh-completions"
+zplug "zsh-users/zsh-history-substring-search"
+
+################
 
 # For pywal
-export PATH="${PATH}:${HOME}/.local/bin/"
-
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="bira"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(sudo colored-man-pages history-search-multi-word alias-tips zsh-autosuggestions)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+#export PATH="${PATH}:${HOME}/.local/bin/:${HOME}/.scripts/"
+# Import colorscheme from 'wal' asynchronously
+# &   # Run the process in the background.
+# ( ) # Hide shell job control messages.
+(cat ~/.cache/wal/sequences &)
+# To add support for TTYs this line can be optionally added.
+source ~/.cache/wal/colors-tty.sh
 
 # Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
 
 # remove command lines from the history list when the first character on the
 # line is a space
 setopt histignorespace
 
-# Keep 1000 lines of history within the shell
-HISTSIZE=10000
-SAVEHIST=10000
+##############################################################################
+# History Configuration
+##############################################################################
+HISTSIZE=10000               #How many lines of history to keep in memory
+HISTFILE=~/.zsh_history     #Where to save history to disk
+SAVEHIST=10000               #Number of history entries to save to disk
+#HISTDUP=erase               #Erase duplicates in the history file
+setopt    appendhistory     #Append history to the history file (no overwriting)
+setopt    sharehistory      #Share history across terminals
+setopt incappendhistory #Immediately append to the history file, not just when a term is killed
 
 # avoid "beep"ing
 setopt nobeep
@@ -238,6 +241,11 @@ function ai() {
 	fi
 }
 
+function ns() {
+	if (($# == 1)) ; then
+		nix-env -qa --description ".*$1.*" | grep -i --color=auto "$1"
+	fi
+}
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -248,10 +256,6 @@ function ai() {
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-
-# Debian
-
-
 alias ll='exa -l'
 alias l='exa'
 alias lt='exa -lT'
@@ -260,12 +264,14 @@ alias la='exa -la'
 alias cl='clear'
 alias cll='clear; exa'
 alias clll='clear; exa -l'
-alias aug='sudo aptitude upgrade'
-alias au='sudo aptitude update'
+#alias aug='sudo aptitude upgrade'
+#alias au='sudo aptitude update'
+alias nup='sudo nix-env -Suy'
+
 alias top10='sudo du -a . | sort -n -r | head -n 10'
 alias wl='wal -t -i ~/Pictures/Wallpapers; wal-steam -w'
 # install colordiff package :)
-alias diff='colordiff'
+#alias diff='colordiff'
 alias pingg='ping -c 5 google.ca'
 alias rmf='rm -rf'
 alias vw='view'
@@ -291,17 +297,24 @@ alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
 alias cpuinfo='lscpu'
 
 #Docker
-alias g7='sudo docker run -v /home/mainuser/Git/GraphAlgorithmTesting:/app -it gcc'
+#alias g7='sudo docker run -v /home/mainuser/Git/GraphAlgorithmTesting:/app -it gcc'
 
 #open
 alias open='xdg-open'
 
 #FTL mods
-alias ftl='cd ~/Steam/SlipstreamModManager_1.9.1-Unix; java -jar modman.jar'
+#alias ftl='cd ~/Steam/SlipstreamModManager_1.9.1-Unix; java -jar modman.jar'
 
 alias vi='nvim'
 alias viz='vi ~/.zshrc; . ~/.zshrc' 
 alias vi3='vi ~/.i3/config'
+alias vih='vi ~/.config/herbstluftwm/autostart'
+alias vin='sudo nvim /etc/nixos/configuration.nix'
+
+#Nix
+alias nit='sudo nixos-rebuild --show-trace test'
+alias nis='sudo nixos-rebuild switch'
+
 
 alias -g gr='| grep'
 
@@ -327,7 +340,27 @@ alias dls='dcls && dils'
 
 eval $(thefuck --alias)
 alias ds='docker search ';
-alias vip='vi /home/mainuser/.config/polybar/config ';
-alias vips='vi /home/mainuser/.scripts/polybar.sh ';
+alias vip='vi ~/.config/polybar/config ';
+alias vips='vi ~/.scripts/polybar.sh ';
 alias gits='git status ';
 alias gits='git status ';
+
+alias lpassl='lpass login patrick.vickery@gmail.com';
+
+# added by travis gem
+[ -f /home/lambda/.travis/travis.sh ] && source /home/lambda/.travis/travis.sh
+
+
+####################
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
+zplug load --verbose && clear
+

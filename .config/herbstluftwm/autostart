@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+
+# this is a simple config for herbstluftwm
+
+hc() {
+    herbstclient "$@"
+}
+
+hc emit_hook reload
+
+# For pywal color variables
+. /home/mainuser/.cache/wal/colors.sh
+foreground="$color15"
+background="$color0"
+background_alt="$color1"
+foreground_alt="$color14"
+primary="$color4"
+secondary="$color5"
+alert="$color6"
+
+# xrdb -merge ~/.xresources
+
+xsetroot -solid "$foreground"
+# xsetroot -solid '#5a8e3a'
+
+# remove all existing keybindings
+hc keyunbind --all
+
+# keybindings
+# if you have a super key you will be much happier with mod set to mod4
+Mod=Mod1    # use alt as the main modifier
+Alt=Mod4   # use the super key as the main modifier
+
+hc keybind $Mod-Shift-q close
+hc keybind $Mod-Shift-r reload
+hc keybind $Mod-Escape quit
+hc keybind $Mod-Return spawn kitty # use your $TERMINAL with xterm as fallback
+
+# basic movement
+# focusing clients
+hc keybind $Mod-Left  focus left
+hc keybind $Mod-Down  focus down
+hc keybind $Mod-Up    focus up
+hc keybind $Mod-Right focus right
+
+# moving clients
+hc keybind $Mod-Shift-Left  shift left
+hc keybind $Mod-Shift-Down  shift down
+hc keybind $Mod-Shift-Up    shift up
+hc keybind $Mod-Shift-Right shift right
+
+# splitting frames
+# create an empty frame at the specified direction
+hc keybind $Mod-v       split   bottom  0.5
+hc keybind $Mod-h       split   right   0.5
+# let the current frame explode into subframes
+hc keybind $Mod-Control-space split explode
+
+# resizing frames
+resizestep=0.05
+hc keybind $Mod-Control-Left    resize left +$resizestep
+hc keybind $Mod-Control-Down    resize down +$resizestep
+hc keybind $Mod-Control-Up      resize up +$resizestep
+hc keybind $Mod-Control-Right   resize right +$resizestep
+
+# tags
+tag_names=( {1..9} )
+tag_keys=( {1..9} 0 )
+
+hc rename default "${tag_names[0]}" || true
+for i in "${!tag_names[@]}" ; do
+    hc add "${tag_names[$i]}"
+    key="${tag_keys[$i]}"
+    if ! [ -z "$key" ] ; then
+        hc keybind "$Mod-$key" use_index "$i"
+        hc keybind "$Mod-Shift-$key" move_index "$i"
+    fi
+done
+
+# cycle through tags
+hc keybind $Mod-Tab use_index +1 
+hc keybind $Mod-Shift-Tab  use_index -1 --skip-visible
+
+# layouting
+hc keybind $Mod-r remove
+hc keybind $Mod-Shift-f floating toggle
+hc keybind $Mod-f fullscreen toggle
+hc keybind $Mod-p pseudotile toggle
+# The following cycles through the available layouts within a frame, but skips
+# layouts, if the layout change wouldn't affect the actual window positions.
+# I.e. if there are two windows within a frame, the grid layout is skipped.
+#hc keybind $Mod-space                                                           \
+#            or , and . compare tags.focus.curframe_wcount = 2                   \
+#                     . cycle_layout +1 vertical horizontal max vertical grid    \
+#               , cycle_layout +1
+
+# mouse
+hc mouseunbind --all
+hc mousebind $Mod-Button1 move
+hc mousebind $Mod-Button2 zoom
+hc mousebind $Mod-Button3 resize
+
+# focus
+hc keybind $Mod-BackSpace   cycle_monitor
+hc keybind $Alt-Tab         cycle_all +1
+hc keybind $Alt-Shift-Tab   cycle_all -1
+hc keybind $Mod-c cycle
+hc keybind $Mod-i jumpto urgent
+
+# theme
+hc attr theme.tiling.reset 1
+hc attr theme.floating.reset 1
+# hc set frame_border_active_color '#222222'
+hc set frame_border_active_color "$foreground"
+# hc set frame_border_normal_color '#101010'
+hc set frame_border_normal_color "$foreground_alt"
+hc set frame_bg_normal_color "$background"
+hc set frame_bg_active_color "$background_alt"
+hc set always_show_frame 0
+hc set frame_bg_transparent 1
+hc set frame_transparent_width 5
+hc set frame_gap 4
+
+hc keybind $Mod-s cycle_value always_show_frame 0 1 
+hc keybind $Mod-o cycle_value frame_normal_opacity 0 40
+
+hc attr theme.active.color "$foreground"
+hc attr theme.normal.color "$foreground_alt"
+hc attr theme.urgent.color "$alert"
+hc attr theme.inner_width 1
+hc attr theme.inner_color black
+hc attr theme.border_width 3
+hc attr theme.floating.border_width 4
+hc attr theme.floating.outer_width 1
+hc attr theme.floating.outer_color black
+hc attr theme.active.inner_color '#3E4A00'
+hc attr theme.active.outer_color '#3E4A00'
+hc attr theme.background_color '#141414'
+
+hc set smart_window_surroundings 0
+hc set smart_frame_surroundings 1
+hc set mouse_recenter_gap 0
+
+# rules
+hc unrule -F
+#hc rule class=XTerm tag=3 # move all xterms to tag 3
+hc rule focus=on # normally focus new clients
+#hc rule focus=off # normally do not focus new clients
+# give focus to most common terminals
+#hc rule class~'(.*[Rr]xvt.*|.*[Tt]erm|Konsole)' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
+hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK|DESKTOP)' manage=off
+
+# unlock, just to be sure
+hc unlock
+
+hc set tree_style '╾│ ├└╼─┐'
+
+# do multi monitor setup here, e.g.:
+# hc set_monitors 1280x1024+0+0 1280x1024+1280+0
+# or simply:
+# hc detect_monitors
+
+# find the panel
+#panel=~/.config/herbstluftwm/panel.sh
+#[ -x "$panel" ] || panel=/etc/xdg/herbstluftwm/panel.sh
+#for monitor in $(herbstclient list_monitors | cut -d: -f1) ; do
+    # start it on each monitor
+#    "$panel" $monitor &
+#done
+
+hc keybind $Mod-space spawn rofi -show-icons -show run -lines 5 -columns 2 
+
+hc keybind Mod4-f spawn firefox
+hc keybind Mod4-c spawn google-chrome
+
+# Transparency
+hc keybind Mod4-t spawn transset 2 -x 2 -a
+hc keybind Mod4-Shift-t spawn transset 2 -x 1 -a
+
+hc keybind XF86MonBrightnessUp spawn ~/.scripts/Brightness.sh up
+hc keybind XF86MonBrightnessDown spawn ~/.scripts/Brightness.sh down 
+hc keybind Mod4-grave spawn ~/.scripts/Brightness.sh 0
+hc keybind Mod4-1 spawn ~/.scripts/Brightness.sh 10
+hc keybind Mod4-2 spawn ~/.scripts/Brightness.sh 20
+hc keybind Mod4-3 spawn ~/.scripts/Brightness.sh 30
+hc keybind Mod4-4 spawn ~/.scripts/Brightness.sh 40
+hc keybind Mod4-5 spawn ~/.scripts/Brightness.sh 50
+hc keybind Mod4-6 spawn ~/.scripts/Brightness.sh 60
+hc keybind Mod4-7 spawn ~/.scripts/Brightness.sh 70
+hc keybind Mod4-8 spawn ~/.scripts/Brightness.sh 80
+hc keybind Mod4-9 spawn ~/.scripts/Brightness.sh 90
+hc keybind Mod4-9 spawn ~/.scripts/Brightness.sh 100
+
+hc keybind XF86AudioRaiseVolume spawn ~/.scripts/Volume.sh up
+hc keybind XF86AudioLowerVolume spawn ~/.scripts/Volume.sh down
+hc keybind Mod4-Shift-grave spawn ~/.scripts/Volume.sh 0
+hc keybind Mod4-Shift-1 spawn ~/.scripts/Volume.sh 10
+hc keybind Mod4-Shift-2 spawn ~/.scripts/Volume.sh 20
+hc keybind Mod4-Shift-3 spawn ~/.scripts/Volume.sh 30
+hc keybind Mod4-Shift-4 spawn ~/.scripts/Volume.sh 40
+hc keybind Mod4-Shift-5 spawn ~/.scripts/Volume.sh 50
+hc keybind Mod4-Shift-6 spawn ~/.scripts/Volume.sh 60
+hc keybind Mod4-Shift-7 spawn ~/.scripts/Volume.sh 70
+hc keybind Mod4-Shift-8 spawn ~/.scripts/Volume.sh 80
+hc keybind Mod4-Shift-9 spawn ~/.scripts/Volume.sh 90
+hc keybind Mod4-Shift-0 spawn ~/.scripts/Volume.sh 100
+
+# Pywal
+hc keybind Mod4-w spawn wal -g -o ~/.scripts/wal-set -t -i ~/Pictures/Wallpapers; ~/.scripts/polybar.sh
+hc keybind Mod4-Shift-w spawn python3 ~/.scripts/color-transfer/color_transfer_wallpaper.py --cycle_dir ~/Pictures/Wallpapers/alena-aenami
+
+hc keybind Print spawn scrot
+hc keybind Shift-Print spawn scrot -s
+
+hc keybind Mod4-p spawn rofi -modi lpass:rofi-lpass -show lpass
+
+# Autostart
+compton -b
+wal -o ~/.scripts/wal-set -t -i ~/Pictures/Wallpapers
+
+
+# Gaps
+default_window_gap=10
+default_frame_padding=15
+
+hc set window_gap $default_window_gap
+hc set frame_padding $default_frame_padding
+
+hc keybind Mod1-F12 spawn ~/.config/herbstluftwm/window_gap.sh up
+hc keybind Mod1-F11 spawn ~/.config/herbstluftwm/window_gap.sh down
+hc keybind Mod1-F10 spawn hc set window_gap $default_window_gap
+
+hc keybind Mod1-Shift-F12 spawn ~/.config/herbstluftwm/frame_padding.sh up
+hc keybind Mod1-Shift-F11 spawn ~/.config/herbstluftwm/frame_padding.sh down
+hc keybind Mod1-Shift-F10 spawn hc set frame_padding $default_frame_padding
