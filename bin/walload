@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+wallpaper="$(cat $HOME/.cache/wallpaper)"
+walset $wallpaper
+#. ~/.cache/wal/colors.sh
+#/usr/local/bin/docker run -it  --volume "$HOME/.cache/wal/:$HOME/.cache/wal/" pywal-docker wal -R

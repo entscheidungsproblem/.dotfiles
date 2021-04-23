@@ -7,21 +7,26 @@ source ~/.zplug/init.zsh
 
 zplug "plugins/gitfast",   from:oh-my-zsh
 zplug "plugins/sudo",   from:oh-my-zsh
-
+zplug "plugins/terraform",   from:oh-my-zsh
 zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
 
 #zplug "trapd00r/zsh-syntax-highlighting-filetypes"
 zplug "sparsick/ansible-zsh"
-zplug "spwhitt/nix-zsh-completions"
+#zplug "spwhitt/nix-zsh-completions"
 zplug "djui/alias-tips"
-zplug "denolfe/zsh-travis"
-
+#zplug "denolfe/zsh-travis"
+zplug "ael-code/zsh-colored-man-pages"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-completions"
-zplug "zsh-users/zsh-history-substring-search"
+zplug "zdharma/history-search-multi-word"
 
 ################
+
+bindkey "^[[1;3A" beginning-of-line
+bindkey "^[[1;3B" end-of-line
+bindkey "^[[1;3C" forward-word
+bindkey "^[[1;3D" backward-word
 
 # For pywal
 #export PATH="${PATH}:${HOME}/.local/bin/:${HOME}/.scripts/"
@@ -157,12 +162,12 @@ fi
 
 function cdn(){
   cmd=""
-  for (( i=0; i < $1; i++)) 
-    do  
+  for (( i=0; i < $1; i++))
+    do
         cmd="$cmd../"
     done
   cd "$cmd"
-}    
+}
 
 # make a backup of a file
 # https://github.com/grml/grml-etc-core/blob/master/etc/zsh/zshrc
@@ -185,7 +190,6 @@ function pw {
 	if (($# > 0)) ; then
 		local length=$1;
 	fi
-	
 	</dev/urandom tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' | head -c $length  ; echo
 }
 
@@ -198,35 +202,6 @@ function searz {
 	if (($# > 0)) ; then
 		cat ~/.zshrc | grep $1;
 	fi
-}
-
-# Quick add alias
-function iz {
-	if (($# >= 2)) ; then
-		local command_text="alias $1='";
-		for n in "${@:2}"; do
-			command_text="$command_text$n ";
-		done
-		echo "$command_text';" >> ~/.zshrc;
-		. ~/.zshrc;
-	else
-		echo 	"Usage: command_alias functions and arguments";
-		echo 	"   or: command_alias \"commands | special chars &\"";
-	fi
-}
-
-
-function sine_wave() {
-	
-	i=0
-	while true
-	do 
-		SIN=$(python -c "from math import *;print map( lambda x: ceil(6*sin((x+$i)*pi/5)), range($(tput cols)) )" | tr -d '[]' | spark)
-		echo -ne $SIN\\r 
-		let i=i+1
-		sleep 0.05
-	done
-	echo
 }
 
 function acs() {
@@ -334,18 +309,23 @@ zshrc_sourced=$(stat -c %Y ~/.zshrc)
 PROMPT_COMMAND='
     test $(stat -c %Y ~/.zshrc) -ne $zshrc_sourced && source ~/.zshrc
 '
+
+# Docker
 alias dcls='docker container ls ';
 alias dils='docker images ';
 alias dls='dcls && dils'
-
-eval $(thefuck --alias)
 alias ds='docker search ';
+
+#eval $(thefuck --alias)
+
+# Polybar
 alias vip='vi ~/.config/polybar/config ';
 alias vips='vi ~/.scripts/polybar.sh ';
-alias gits='git status ';
+
+# Git
 alias gits='git status ';
 
-alias lpassl='lpass login patrick.vickery@gmail.com';
+#alias lpassl='lpass login patrick.vickery@gmail.com';
 
 # added by travis gem
 [ -f /home/lambda/.travis/travis.sh ] && source /home/lambda/.travis/travis.sh

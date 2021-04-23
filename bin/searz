@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+if (($# > 0)) ; then
+  cat ~/.zshrc | grep $1;
+fi
+

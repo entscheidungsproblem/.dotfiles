@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if (($# == 0)); then
+  exa -lT
+else
+  exa -lT -L $1
+fi

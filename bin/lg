@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+if (($# == 0))
+  then echo "Add ls grep filter"; fi
+exa -la | grep "$1"

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if (($# > 0)); then
+  # Pywal via docker
+  local path="$1"
+  /usr/local/bin/docker run --volume "$path:/tmp/path" --volume "$HOME/.cache/wal/:$HOME/.cache/wal/" -it pywal-docker wal -i "/tmp/path" -en
+fi

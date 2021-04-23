@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+pic="$(ls /Users/pvickery/Pictures |sort -R |tail -1)"
+wall "/Users/pvickery/Pictures/${pic}"
+

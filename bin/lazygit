@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if (( $# == 0 ))
+  then echo "Missing commit message: lazygit <commit message>"; fi
+git add .
+git commit -a -m "$1"
+git push

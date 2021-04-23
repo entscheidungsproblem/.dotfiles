@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+local wallpaper="$(cat $HOME/.cache/wallpaper)"
+/usr/local/bin/docker run --volume "$wallpaper:/tmp/path" --volume "$HOME/.cache/wal/:$HOME/.cache/wal/" -it pywal-docker wal -i "/tmp/path" -len

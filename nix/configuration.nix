@@ -8,14 +8,11 @@ let
     spotify_password = (import /etc/nixos/spotify.nix).password;  
     spotify_id = (import /etc/nixos/spotify.nix).client_id;
     spotify_secret = (import /etc/nixos/spotify.nix).client_secret;
-    vpn_username = (import /etc/nixos/vpn.nix).username;  
-    vpn_password = (import /etc/nixos/vpn.nix).password;  
 in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./fonts.nix
     ];
 
   boot.initrd.luks.devices = [
@@ -71,7 +68,12 @@ in
       # Internet
       wget
       curl
+      #speedtest-cli
       git
+      #firefox
+      #unfree.google-chrome
+      #transmission
+      #transmission-gtk
 
       # Build Essentials
       gcc
@@ -95,11 +97,23 @@ in
       processing
       yarn
 
+      # Launcher
+      #rofi
+      #rofi-pass
+
       # Text
       neovim
+      #libxkbfile  # For onivim
+      #libreoffice
 
+      # Terminal
+      #kitty
       exa
+      #ranger
+      #neofetch
+      #tmux
       ripgrep
+      #thefuck
 
       # Shell
       zsh
@@ -118,7 +132,32 @@ in
       p7zip
       cabextract
 
+      # Media
       #vlc
+      #ffmpeg
+      #imagemagick
+      #ncmpcpp
+      #blueman
+
+      # PDF
+      #zathura
+
+      # WM
+      #compton
+      #polybar
+      #lemonbar
+      #pywal
+      #dunst
+      #i3lock-fancy
+      #nerdfonts
+      #lastpass-cli
+      #xclip
+      #xwinwrap
+      #xscreensaver
+      #gifsicle
+
+      # Nix
+      #nix-prefetch-git
     ];
     variables = {
       TERMINAL = [ "kitty" ];
@@ -153,7 +192,7 @@ in
 
   services.mopidy = {
     enable = true;
-    extensionPackages = [ pkgs.mopidy-spotify pkgs.mopidy-mopify pkgs.mopidy-spotify-tunigo pkgs.mopidy-local-images pkgs.mopidy-youtube ];
+    extensionPackages = [ pkgs.mopidy-spotify pkgs.mopidy-mopify pkgs.mopidy-spotify-tunigo pkgs.mopidy-youtube ];
     configuration = ''
       [spotify]
       username = "${spotify_username}"
@@ -163,16 +202,7 @@ in
     '';
   };
 
-  services.searx.enable = true;
 
-  # Media Server
-  #services.transmission.enable = true;
-  #services.jackett.enable = true;
-  #services.sonarr.enable = true;
-  #services.radarr.enable = true;
-  #services.plex.enable = true;
-  #services.plex.openFirewall = true;
-  
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
@@ -183,19 +213,7 @@ in
   # networking.firewall.enable = false;
 
   # Enable CUPS to print documents.
-  services.printing = {
-    enable = true;
-    drivers = [pkgs.gutenprint pkgs.gutenprintBin pkgs.brgenml1cupswrapper pkgs.brgenml1lpr pkgs.foomatic_filters ]; 
-    #[ pkgs.gutenprint];
-  };
-
-  services.openvpn.servers = {
-    nord = { 
-      config = '' config /home/lambda/.vpn/ovpn_udp/ca229.nordvpn.com.udp.ovpn '';
-      authUserPass.username = "${vpn_username}";
-      authUserPass.password = "${vpn_password}";
-    };
-  };
+  # services.printing.enable = true;
 
   # Enable sound.
   sound.enable = true;
@@ -204,22 +222,13 @@ in
     support32Bit = true;
   };
 
-  # For Steam
-  hardware.opengl.driSupport32Bit = true;
-
   # Enable Bluetooth
   #hardware.bluetooth.enable = true;
-
-  # Video Driver
-  services.xserver.videoDrivers = ["amdgpu-pro" "amdgpu"];
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
-
-  # AMD driver
-  #services.xserver.videoDrivers = [ "ati_unfree" ];
 
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
@@ -237,119 +246,13 @@ in
       isNormalUser = true;
       uid = 1000;
       extraGroups = ["wheel" "networkmanager" "audio"];
-      packages =
-          with pkgs;[             
-            # Internet
-            speedtest-cli
-            firefox
-            unfree.google-chrome
-            transmission
-            transmission-gtk	
-            deluge
-            #deluge-gtk
-	    torbrowser
-	    tsocks
-	    
-	    gdb
-	    valgrind
-	    texlive.combined.scheme-full
-	    haxor-news
-
-            # Launcher
-            rofi
-            rofi-pass
-	    gnome3.adwaita-icon-theme
-            xorg.xev
-
-	    # Text
-            libreoffice
- 
-            # vscode
-            libunwind
-	    lttng-ust
-	    libuuid
-	    icu
-	    gettext
-	    zlib
-	    desktop-file-utils
-
-	    vscode
-	    
-
-            # Terminal
-            kitty
-	    ranger
-            neofetch
-            tmux
-            thefuck
-          
-            # Media
-            #vlc
-            mpv
-	    #youtube-dl
-	    ffmpeg
-            imagemagick
-            ncmpcpp
-            blueman
-          
-            # PDF
-            zathura
-
-            # WM
-            compton
-            polybar
-            jq
-	    xorg.xwininfo
-	    lemonbar-xft
-            #python36Packages.setuptools
-	    conky
-	    xdotool
-	    
-	    pywal
-	    (python35.withPackages(ps: with ps; [ pywal ]))
-	    dunst
-            libnotify
-	    i3lock-fancy
-            lastpass-cli
-            xclip
-            xwinwrap
-            xscreensaver
-            gifsicle
-
-            # Nix
-            nix-prefetch-git
-
-            # Games
-	          unfree.steam
-            hwinfo
-            #Misc
-            xxd
-	    binutils 
-	   ];
     };
     extraUsers.emily = {
       isNormalUser = true;
       uid = 1001;
       extraGroups = ["networkmanager" "audio"];
-      packages =
-          with pkgs;[ 
-            firefox
-            unfree.google-chrome
-            xclip
-            zathura
-            libreoffice 
-            transmission
-            transmission-gtk
-           ];
-    };
-
-    groups.media = {
-      members = ["transmission" "sonarr" "radarr" "plex" "lambda"];
     };
   };
-
-
-  
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database
@@ -358,4 +261,3 @@ in
   system.stateVersion = "18.03"; # Did you read the comment?
 
 }
-

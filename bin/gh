@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+echo "testing" >> ~/.zsh_test
+url=$(git remote -v | grep git@github.com | grep fetch | head -1 | cut -f2 | cut -d' ' -f1 | sed -e's/:/\//' -e 's/git@/https:\/\//' | sed 's/\.git/\/tree\//g')
+echo $url >> ~/.zsh_test
+branch=$(git branch | grep -F '*' | sed 's/\* //g')
+echo $branch >> ~/.zsh_test
+open "${url}${branch}"
